@@ -18,6 +18,13 @@ public class DearImGuiHandler : MonoBehaviour
 
     private void OnLayout()
     {
-        ImGui.ShowDemoWindow();
+        DearImGuiWindowHandler.Instance.MenuBar();
+        foreach (DearImGuiWindow window in DearImGuiWindowHandler.Instance.WindowsToBeRendered)
+        {
+            ImGui.Begin(window.name);
+            window.Render();
+            ImGui.End();
+        }
+        
     }
 }
