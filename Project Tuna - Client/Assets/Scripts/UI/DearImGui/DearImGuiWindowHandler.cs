@@ -179,7 +179,6 @@ public class DearImGuiWindowHandler
 
     private void RenderMenuBar()
     {
-        Debug.Log("RenderManuBar");
         ImGui.BeginMainMenuBar();
         if (ImGui.BeginMenu("Windows"))
         {
