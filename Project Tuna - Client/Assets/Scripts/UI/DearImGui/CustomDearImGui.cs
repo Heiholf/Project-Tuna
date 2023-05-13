@@ -18,4 +18,16 @@ public class ImGuiUtils
         }
     }
 
+    public static void ErrorText(string text)
+    {
+        ImGui.TextColored(Color.red, text);
+    }
+
+    public static void ErrorTextWithHint(string text, string hint)
+    {
+        ImGui.TextColored(Color.red, text);
+        ImGui.SameLine();
+        ImGuiUtils.HelpMarker(hint);
+    }
+
 }

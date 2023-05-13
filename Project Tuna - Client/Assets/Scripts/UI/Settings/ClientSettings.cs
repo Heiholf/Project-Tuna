@@ -19,5 +19,10 @@ public class ClientSettings
         }
     }
 
+    //TODO: implement saving
+
     public string SaveDirectoryPath = Path.Join(Application.dataPath, "data/");
+
+    public string serverIp = "127.0.0.1";
+    public ushort serverPort = 7777;
 }

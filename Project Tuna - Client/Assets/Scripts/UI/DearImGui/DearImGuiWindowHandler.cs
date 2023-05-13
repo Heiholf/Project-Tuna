@@ -147,6 +147,14 @@ public class DearImGuiWindowHandler
         return window.name;
     }
 
+    public void UpdateDisplayStateOfWindow(string windowTitle, DearImGuiWindowState newState)
+    {
+        DearImGuiWindowStruct windowStruct = Windows[windowTitle];
+        windowStruct.state = newState;
+        Windows[windowTitle] = windowStruct;
+        hasWindowStateChanged = true;
+    }
+
     private void ClientStateChanged(ClientState clientState)
     {
 

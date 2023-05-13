@@ -42,9 +42,7 @@ public class ClientSettingsDisplayHandler : MonoBehaviour
             }
             if (errorOcurred)
             {
-                ImGui.TextColored(Color.red, "Input invalid!");
-                ImGui.SameLine();
-                ImGuiUtils.HelpMarker("The given input is invalid. Maybe the path does not exist or does not lead to a directory.");
+                ImGuiUtils.ErrorTextWithHint("Input invalid!", "The given input is invalid. Maybe the path does not exist or does not lead to a directory.");
             }
         }
     }

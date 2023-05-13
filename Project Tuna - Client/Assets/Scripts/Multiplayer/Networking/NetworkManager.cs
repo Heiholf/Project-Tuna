@@ -1,5 +1,6 @@
 using Riptide;
 using Riptide.Utils;
+using System;
 using UnityEngine;
 
 public class NetworkManager : MonoBehaviour
@@ -44,6 +45,14 @@ public class NetworkManager : MonoBehaviour
         RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
 
         Client = new Client();
+
+        Client.Disconnected += OnLocalClientDisconnected;
+        Client.ConnectionFailed += OnConnectionFailed;
+        
+    }
+
+    public void ConnectToServer(string ip, ushort port)
+    {
         Client.Connect($"{ip}:{port}");
     }
 
@@ -56,4 +65,23 @@ public class NetworkManager : MonoBehaviour
     {
         Client.Disconnect();
     }
+
+    private void OnLocalClientDisconnected(object sender, EventArgs args)
+    {
+        OnConnectionLost();
+    }
+
+    private void OnConnectionFailed(object sender, ConnectionFailedEventArgs args)
+    {
+        OnConnectionLost();
+    }
+
+    public Action OnConnectionLostEvent;
+
+    private void OnConnectionLost()
+    {
+        OnConnectionLostEvent.Invoke();
+    }
+
+
 }
