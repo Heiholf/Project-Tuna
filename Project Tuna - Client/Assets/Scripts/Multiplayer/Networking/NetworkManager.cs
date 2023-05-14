@@ -3,6 +3,11 @@ using Riptide.Utils;
 using System;
 using UnityEngine;
 
+enum ClientToServeMessageID : ushort
+{
+    joinGame = 1,
+}
+
 public class NetworkManager : MonoBehaviour
 {
     private static NetworkManager instance;
@@ -33,7 +38,7 @@ public class NetworkManager : MonoBehaviour
         Instance = this;
     }
 
-    public Client Client { get; private set;}
+    public Client Client { get; private set; }
 
     [SerializeField]
     private string ip;
@@ -48,8 +53,10 @@ public class NetworkManager : MonoBehaviour
 
         Client.Disconnected += OnLocalClientDisconnected;
         Client.ConnectionFailed += OnConnectionFailed;
-        
+        Client.Connected += OnLocalClientConnected;
+
     }
+
 
     public void ConnectToServer(string ip, ushort port)
     {
@@ -66,6 +73,8 @@ public class NetworkManager : MonoBehaviour
         Client.Disconnect();
     }
 
+    #region EventHandlers
+
     private void OnLocalClientDisconnected(object sender, EventArgs args)
     {
         OnConnectionLost();
@@ -76,12 +85,32 @@ public class NetworkManager : MonoBehaviour
         OnConnectionLost();
     }
 
+    private void OnLocalClientConnected(object sender, EventArgs e)
+    {
+        OnLocalClientConnectedEvent.Invoke();
+    }
+
+    #endregion
+
+
+    #region EventForwarders
+
     public Action OnConnectionLostEvent;
+    public Action OnLocalClientConnectedEvent;
 
     private void OnConnectionLost()
     {
         OnConnectionLostEvent.Invoke();
     }
 
+    #endregion
 
+
+    
+    public void SendJoinGameMessage(string username)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServeMessageID.joinGame);
+        message.AddString(username);
+        Client.Send(message);
+    }
 }

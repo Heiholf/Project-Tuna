@@ -7,27 +7,34 @@ using System.Text.RegularExpressions;
 public class ConnectionUIHandler : MonoBehaviour
 {
 
-    [SerializeField] private string windowName = "Connect to Server";
+    [SerializeField] private string connectToServerWindowName = "Connect to Server";
+    [SerializeField] private string joinGameWindowName = "Join Game";
 
 
     void Start()
     {
         AddConnectionWindow();
+        AddJoinGameWindow();
         NetworkManager.Instance.OnConnectionLostEvent += OnConnectionStopped;
+        NetworkManager.Instance.OnLocalClientConnectedEvent += OnLocalClientConnected;
     }
+
+    #region ConnectToServerWindow
 
     void AddConnectionWindow()
     {
         DearImGuiWindow window = new DearImGuiWindow();
-        window.content = RenderConnectionWindow;
-        window.name = windowName;
-        windowName = DearImGuiWindowHandler.Instance.AddWindow(window, DearImGuiWindowState.AlwaysShown);
+        window.content = RenderConnectToServerWindow;
+        window.name = connectToServerWindowName;
+        connectToServerWindowName = DearImGuiWindowHandler.Instance.AddWindow(window, DearImGuiWindowState.AlwaysShown);
     }
+
+
 
     readonly Regex ipRegex = new Regex(@"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}");
 
 
-    void RenderConnectionWindow()
+    void RenderConnectToServerWindow()
     {
 
         string ip = ClientSettings.Instance.serverIp;
@@ -45,7 +52,8 @@ public class ConnectionUIHandler : MonoBehaviour
         {
             ImGuiUtils.ErrorTextWithHint("ip address invalid", "The given input does not match the required shape for a IPv4 address.");
             isWithoutErrors = false;
-        } else
+        }
+        else
         {
             ClientSettings.Instance.serverIp = ip;
         }
@@ -58,7 +66,9 @@ public class ConnectionUIHandler : MonoBehaviour
         if (ushort.TryParse(portString, out portUShort))
         {
             ClientSettings.Instance.serverPort = portUShort;
-        } else
+            Debug.Log(ClientSettings.Instance.serverPort);
+        }
+        else
         {
             ImGuiUtils.ErrorTextWithHint("port invalid", $"The given input does not match the required shape for a port. The port has to be a positive integer below {ushort.MaxValue}.");
             isWithoutErrors = false;
@@ -69,24 +79,103 @@ public class ConnectionUIHandler : MonoBehaviour
         if (ImGui.Button("Connect to Server") && isWithoutErrors)
         {
             OnConnectPressed();
+
+            if (!isWithoutErrors)
+                ImGui.PopStyleColor();
+
+        } 
+    }
+
+    #endregion
+
+    #region JoinGameWindow
+
+    void AddJoinGameWindow()
+    {
+        DearImGuiWindow window = new DearImGuiWindow();
+        window.content = RenderJoinGameWindow;
+        window.name = joinGameWindowName;
+        joinGameWindowName = DearImGuiWindowHandler.Instance.AddWindow(window, DearImGuiWindowState.AlwaysHidden);
+    }
+
+    void RenderJoinGameWindow()
+    {
+        string username = ClientSettings.Instance.username;
+        ImGui.InputText("Username", ref username, 15);
+        ImGui.SameLine();
+        ImGuiUtils.HelpMarker("Enter the name other players will see in game.");
+
+        if(checkUsername(username) == UsernameResult.Valid)
+        {
+            ClientSettings.Instance.username = username;
+            if(ImGui.Button("Join Game"))
+            {
+                JoinGame();
+            }
+        } else
+        {
+            string error;
+            switch(checkUsername(username))
+            {
+                case UsernameResult.TooShort:
+                    error = "Entered username is too short.";
+                    break;
+                case UsernameResult.ContainsSpaces:
+                    error = "Entered username contains spaces.";
+                    break;
+                default:
+                    error = "";
+                    break;
+            }
+            ImGuiUtils.ErrorText(error);
         }
-        if (!isWithoutErrors)
-            ImGui.PopStyleColor();
 
 
     }
+
+    enum UsernameResult {
+        Valid, 
+        TooShort,
+        ContainsSpaces,
+    }
+
+    UsernameResult checkUsername(string username)
+    {
+        if(username.Length < 3)
+            return UsernameResult.TooShort;
+        if (username.Contains(" "))
+            return UsernameResult.ContainsSpaces;
+        return UsernameResult.Valid;
+
+    }
+
+    void JoinGame()
+    {
+        NetworkManager.Instance.SendJoinGameMessage(ClientSettings.Instance.username);
+        Debug.Log("Joining game");
+    }
+
+    #endregion
+
+    #region EventHandlers
 
     void OnConnectPressed()
     {
         NetworkManager.Instance.ConnectToServer(ClientSettings.Instance.serverIp, ClientSettings.Instance.serverPort);
 
-        DearImGuiWindowHandler.Instance.UpdateDisplayStateOfWindow(windowName, DearImGuiWindowState.AlwaysHidden);
+        DearImGuiWindowHandler.Instance.UpdateDisplayStateOfWindow(connectToServerWindowName, DearImGuiWindowState.AlwaysHidden);
     }
 
     void OnConnectionStopped()
     {
-        
-        DearImGuiWindowHandler.Instance.UpdateDisplayStateOfWindow(windowName, DearImGuiWindowState.AlwaysShown);
+        DearImGuiWindowHandler.Instance.UpdateDisplayStateOfWindow(connectToServerWindowName, DearImGuiWindowState.AlwaysShown);
+        DearImGuiWindowHandler.Instance.UpdateDisplayStateOfWindow(joinGameWindowName, DearImGuiWindowState.AlwaysHidden);
     }
 
+    void OnLocalClientConnected()
+    {
+        DearImGuiWindowHandler.Instance.UpdateDisplayStateOfWindow(joinGameWindowName, DearImGuiWindowState.AlwaysShown);
+    }
+
+    #endregion
 }

@@ -590,6 +590,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1498632509}
   - component: {fileID: 1498632510}
+  - component: {fileID: 1498632511}
   m_Layer: 0
   m_Name: SceneTraveler
   m_TagString: Untagged
@@ -623,9 +624,21 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1498632508}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5bfa466463a9c1d4f89c442cf6054024, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1498632511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1498632508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43aa64b779d50604a8ec48ca1c8cfe67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1631242468

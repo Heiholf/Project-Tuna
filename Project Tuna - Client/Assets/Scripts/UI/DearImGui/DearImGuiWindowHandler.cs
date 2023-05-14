@@ -173,7 +173,8 @@ public class DearImGuiWindowHandler
     readonly Dictionary<DearImGuiWindowState, Color> windowStateToColorMap = new Dictionary<DearImGuiWindowState, Color>{
         {DearImGuiWindowState.AlwaysShown, new Color(50,205,0)},
         {DearImGuiWindowState.ShownOnPause, Color.white},
-        {DearImGuiWindowState.Hidden, new Color(235, 86, 0)}
+        {DearImGuiWindowState.Hidden, new Color(235, 86, 0)},
+        {DearImGuiWindowState.AlwaysHidden, new Color(0, 0, 0)}
     };
 
     private bool RenderWindowMenuItem(DearImGuiWindowStruct windowStruct, DearImGuiWindowState state)

@@ -57,5 +57,21 @@ public class SaveManager
     }
 
 
+    public void SaveClassAsXMLFile<T>(T classObject, string subpath)
+    {
+        string xmlString = XMLUtils.SerializeClassToXML<T>(classObject);
+
+        File.Delete(Path.Combine(BasePath, subpath));
+        File.WriteAllText(Path.Combine(BasePath, subpath), xmlString);
+    }
+
+    public T ReadClassFromXMLFile<T>(string subpath)
+    {
+        string xmlString = File.ReadAllText(Path.Combine(BasePath, subpath));
+
+        return XMLUtils.ParseClassFromXML<T>(xmlString);
+    }
+
+
 
 }

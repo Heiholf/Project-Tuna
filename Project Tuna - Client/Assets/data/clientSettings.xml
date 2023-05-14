@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ClientSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SaveDirectoryPath>C:/Users/Florian/Dateien/Coding/Unity/Project Tuna/Project Tuna - Client/Assets\data/</SaveDirectoryPath>
+  <serverIp>127.0.0.1</serverIp>
+  <serverPort>7778</serverPort>
+  <username>Florian</username>
+</ClientSettings>

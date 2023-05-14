@@ -2,6 +2,12 @@ using Riptide;
 using Riptide.Utils;
 using UnityEngine;
 
+public enum ClientToServeMessageID : ushort
+{
+    joinGame = 1,
+}
+
+
 public class NetworkManager : MonoBehaviour
 {
     private static NetworkManager instance;
