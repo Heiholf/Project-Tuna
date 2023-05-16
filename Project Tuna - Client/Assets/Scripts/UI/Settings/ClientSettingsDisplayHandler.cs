@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ImGuiNET;
 using Tuna;
+using System;
 
 public class ClientSettingsDisplayHandler : MonoBehaviour
 {
@@ -16,13 +17,17 @@ public class ClientSettingsDisplayHandler : MonoBehaviour
     }
 
 
+
+
+
     private void RenderSettings()
     {
         ImGui.BeginChild("body");
         RenderSavingSettings();
-        
+        RenderInputSettings();
+
         ImGui.EndChild();
-        
+
     }
 
 
@@ -45,5 +50,78 @@ public class ClientSettingsDisplayHandler : MonoBehaviour
                 ImGuiUtils.ErrorTextWithHint("Input invalid!", "The given input is invalid. Maybe the path does not exist or does not lead to a directory.");
             }
         }
+    }
+
+    private void RenderInputSettings()
+    {
+        if (ImGui.CollapsingHeader("Input"))
+        {
+            if (ImGui.TreeNode("Basic"))
+            {
+                foreach (KeyValuePair<KeyCode, string> pair in ClientSettings.Instance.inputSettings.buttonToDescriptionMap)
+                {
+                    RenderBasicInputElement(pair);
+                }
+                ImGui.TreePop();
+            }
+            if (ImGui.TreeNode("Advanced"))
+            {
+                foreach (KeyValuePair<KeyCode, KeyCode> pair in ClientSettings.Instance.inputSettings.buttonToInputMap)
+                {
+                    RenderAdvancedInputElement(pair);
+                }
+                ImGui.TreePop();
+            }
+        }
+    }
+
+    private void RenderBasicInputElement(KeyValuePair<KeyCode, string> pair)
+    {
+
+        ImGui.Text(pair.Value);
+        ImGui.SameLine();
+        string buttonText = InputHandler.ConvertDesiredKeyToInputKey(pair.Key).ToString();
+        if (ImGui.Button(buttonText))
+        {
+            buttonText = "";
+            StartCoroutine(WaitForKeyInput((KeyCode newKey) =>
+            {
+                ClientSettings.Instance.inputSettings.RemapKey(pair.Key, newKey);
+            }));
+        }
+
+    }
+
+    private void RenderAdvancedInputElement(KeyValuePair<KeyCode, KeyCode> pair)
+    {
+
+        ImGui.Text(pair.Key.ToString());
+        ImGui.SameLine();
+        string buttonText = pair.Value.ToString();
+        if (ImGui.Button(buttonText))
+        {
+            buttonText = "";
+            StartCoroutine(WaitForKeyInput((KeyCode newKey) =>
+            {
+                ClientSettings.Instance.inputSettings.RemapKey(pair.Key, newKey);
+            }));
+        }
+
+    }
+
+    private IEnumerator WaitForKeyInput(Action<KeyCode> callback)
+    {
+        yield return new WaitForSecondsRealtime(0.1f);
+
+        yield return new WaitUntil(() =>
+        {
+            if (Input.anyKeyDown)
+            {
+                callback.Invoke(InputHandler.GetCurrentPressedKey());
+                return true;
+            }
+            return false;
+        });
+
     }
 }

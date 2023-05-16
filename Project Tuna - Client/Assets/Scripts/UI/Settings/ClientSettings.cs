@@ -31,6 +31,8 @@ public class ClientSettings
 
     public string username = Environment.UserName;
 
+    public InputSettings inputSettings = new InputSettings();
+
 
     //TODO: implement handling of changing the SaveDirectoryPath
     public void Setup()
@@ -46,6 +48,7 @@ public class ClientSettings
         //TODO: implement better solution
         ClientSettings.Instance.serverIp = readSettings.serverIp;
         ClientSettings.Instance.serverPort = readSettings.serverPort;
+        ClientSettings.Instance.inputSettings = readSettings.inputSettings;
         Debug.Log("Read ClientSettings");
     }
 

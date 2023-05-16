@@ -685,7 +685,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a6024b9273001341ad0cc239eabbb27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  windowName: Connect to Server
+  connectToServerWindowName: Connect to Server
+  joinGameWindowName: Join Game
 --- !u!1 &2031624561
 GameObject:
   m_ObjectHideFlags: 0
