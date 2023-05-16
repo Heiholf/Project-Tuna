@@ -3,10 +3,18 @@ using Riptide.Utils;
 using System;
 using UnityEngine;
 
-enum ClientToServeMessageID : ushort
+public enum ClientToServeMessageID : ushort
 {
     joinGame = 1,
 }
+
+public enum ServerToClientMessageID : ushort
+{
+    updatedUsername = 1,
+    joinRejectReason,
+}
+
+
 
 public class NetworkManager : MonoBehaviour
 {

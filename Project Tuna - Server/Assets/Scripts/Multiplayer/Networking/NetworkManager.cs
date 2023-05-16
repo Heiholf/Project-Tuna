@@ -7,6 +7,12 @@ public enum ClientToServeMessageID : ushort
     joinGame = 1,
 }
 
+public enum ServerToClientMessageID : ushort
+{
+    updatedUsername = 1,
+    joinRejectReason,
+}
+
 
 public class NetworkManager : MonoBehaviour
 {
@@ -53,7 +59,9 @@ public class NetworkManager : MonoBehaviour
         RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
 
         Server = new Server();
-        
+
+
+        Server.ClientDisconnected += OnClientDisconnected;
 
         Server.Start(port, maxClientCount);
         Debug.Log("Started Server");
@@ -67,5 +75,10 @@ public class NetworkManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         Server.Stop();
+    }
+
+    private void OnClientDisconnected(object sender, ServerDisconnectedEventArgs args)
+    {
+        
     }
 }

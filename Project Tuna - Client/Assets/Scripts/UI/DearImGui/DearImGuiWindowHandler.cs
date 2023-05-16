@@ -21,6 +21,26 @@ public enum DisplayState
     Undefined,
 }
 
+public struct DearImGuiPopup
+{
+    public Action content;
+    public string name;
+    public PopupCloseBehaviour closeBehaviour;
+
+    public DearImGuiPopup(Action _content, string _name, PopupCloseBehaviour _closeBehaviour = PopupCloseBehaviour.CloseOnClick)
+    {
+        content = _content;
+        name = _name;
+        closeBehaviour = _closeBehaviour;
+    }
+}
+
+public enum PopupCloseBehaviour
+{
+    CloseOnClick,
+    DontCloseOnClick
+}
+
 public struct DearImGuiWindowStruct
 {
     public DearImGuiWindow window;
@@ -123,22 +143,13 @@ public class DearImGuiWindowHandler
         isSetup = true;
     }
 
+    #region Windows
     public string AddWindow(DearImGuiWindow window, DearImGuiWindowState baseState)
     {
         Setup();
         if (Instance.Windows.ContainsKey(window.name))
         {
-            Regex regex = new Regex(@".* - (?<number>\d+)");
-            Match match = regex.Match(window.name);
-            if (match.Success)
-            {
-                int number = int.Parse(match.Groups["number"].Value);
-                string newName = window.name.Substring(0, match.Groups["number"].Index) + (number + 1);
-                window.name = newName;
-            } else
-            {
-                window.name += " - 2";
-            }
+            window.name = Tuna.Utils.AddEnumerationToString(window.name);
             return AddWindow(window, baseState);
         }
 
@@ -161,7 +172,9 @@ public class DearImGuiWindowHandler
         DisplayState = ClientStateHandler.ClientStateToDisplayState(ClientStateHandler.Instance.clientState);
     }
 
+    #endregion
 
+    #region MenuBar
     public void MenuBar()
     {
         if (Instance.DisplayState == DisplayState.Paused)
@@ -179,7 +192,7 @@ public class DearImGuiWindowHandler
 
     private bool RenderWindowMenuItem(DearImGuiWindowStruct windowStruct, DearImGuiWindowState state)
     {
-        
+
         ImGui.PushStyleColor(ImGuiCol.Text, Instance.windowStateToColorMap[state]);
         bool val = ImGui.BeginMenu(windowStruct.window.name, state != DearImGuiWindowState.AlwaysHidden);
         ImGui.PopStyleColor();
@@ -191,7 +204,7 @@ public class DearImGuiWindowHandler
         ImGui.BeginMainMenuBar();
         if (ImGui.BeginMenu("Windows"))
         {
-            foreach(KeyValuePair<string, DearImGuiWindowStruct> pair in Instance.Windows)
+            foreach (KeyValuePair<string, DearImGuiWindowStruct> pair in Instance.Windows)
             {
                 DearImGuiWindowStruct windowStruct = pair.Value;
                 DearImGuiWindowState state = windowStruct.state;
@@ -209,7 +222,7 @@ public class DearImGuiWindowHandler
                         windowStruct.state = DearImGuiWindowState.AlwaysShown;
                         somethingChanged = true;
                     }
-                    if(ImGui.MenuItem("Hide during Play", "", shownOnPause))
+                    if (ImGui.MenuItem("Hide during Play", "", shownOnPause))
                     {
                         windowStruct.state = DearImGuiWindowState.ShownOnPause;
                         somethingChanged = true;
@@ -229,15 +242,81 @@ public class DearImGuiWindowHandler
                     }
 
                     ImGui.EndMenu();
-                   
+
                 }
-                
+
             }
-            
+
             ImGui.EndMenu();
         }
-       
+
 
         ImGui.EndMainMenuBar();
     }
+
+    #endregion
+
+    #region Popup & Modals
+
+    //TODO: Implement smarter way of handling the removal of popups.
+
+    public Dictionary<string, DearImGuiPopup> popups = new Dictionary<string, DearImGuiPopup>();
+
+    public List<string> popupsToBeShown = new List<string>();
+
+    public List<IEnumerator> coroutinesToBeStarted = new List<IEnumerator>();
+
+    public string AddPopup(DearImGuiPopup popup)
+    {
+        if (Instance.popups.ContainsKey(popup.name))
+        {
+            popup.name = Tuna.Utils.AddEnumerationToString(popup.name);
+            return AddPopup(popup);
+        }
+
+        Instance.popups.Add(popup.name, popup);
+        return popup.name;
+    }
+
+    public void RemovePopup(string name)
+    {
+        popups.Remove(name);
+    }
+
+    
+    public void ShowPopup(string name)
+    {
+        popupsToBeShown.Add(name);
+    }
+
+    public void ResetPopups()
+    {
+        popupsToBeShown = new List<string>();
+        coroutinesToBeStarted = new List<IEnumerator>();
+    }
+
+    public IEnumerator WaitForPopupToBeRemoved(string name)
+    {
+        yield return new WaitForSecondsRealtime(3);
+        RemovePopup(name);
+    }
+
+    public void ShowSimplePopup(string name, string content)
+    {
+        Action renderContent = () =>
+        {
+            ImGui.TextWrapped(content);
+            if (ImGui.Button("Close"))
+            {
+                ImGui.CloseCurrentPopup();
+            }
+        };
+        DearImGuiPopup popup = new DearImGuiPopup(renderContent, name, PopupCloseBehaviour.DontCloseOnClick);
+        name = AddPopup(popup);
+        ShowPopup(name);
+        coroutinesToBeStarted.Add(WaitForPopupToBeRemoved(name));
+
+    }
+
+    #endregion
 }

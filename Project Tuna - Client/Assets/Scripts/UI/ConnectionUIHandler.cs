@@ -7,8 +7,39 @@ using System.Text.RegularExpressions;
 public class ConnectionUIHandler : MonoBehaviour
 {
 
+    #region Singleton
+    private static ConnectionUIHandler instance;
+
+    public static ConnectionUIHandler Instance
+    {
+        get
+        {
+            if (instance is null)
+                Debug.LogError($"{nameof(ConnectionUIHandler)}-Instance has not yet been created.");
+            return instance;
+        }
+        set
+        {
+            if (instance is not null)
+            {
+                Debug.LogWarning($"{nameof(ConnectionUIHandler)}-Instance has already been created. Destroying new one.");
+                Destroy(value);
+
+                return;
+            }
+            instance = value;
+        }
+    }
+    #endregion
+
     [SerializeField] private string connectToServerWindowName = "Connect to Server";
     [SerializeField] private string joinGameWindowName = "Join Game";
+
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
 
     void Start()
@@ -17,6 +48,7 @@ public class ConnectionUIHandler : MonoBehaviour
         AddJoinGameWindow();
         NetworkManager.Instance.OnConnectionLostEvent += OnConnectionStopped;
         NetworkManager.Instance.OnLocalClientConnectedEvent += OnLocalClientConnected;
+
     }
 
     #region ConnectToServerWindow
@@ -66,7 +98,6 @@ public class ConnectionUIHandler : MonoBehaviour
         if (ushort.TryParse(portString, out portUShort))
         {
             ClientSettings.Instance.serverPort = portUShort;
-            Debug.Log(ClientSettings.Instance.serverPort);
         }
         else
         {
@@ -153,6 +184,11 @@ public class ConnectionUIHandler : MonoBehaviour
     {
         NetworkManager.Instance.SendJoinGameMessage(ClientSettings.Instance.username);
         Debug.Log("Joining game");
+    }
+
+    public void OnGameJoined()
+    {
+        DearImGuiWindowHandler.Instance.UpdateDisplayStateOfWindow(joinGameWindowName, DearImGuiWindowState.AlwaysHidden);
     }
 
     #endregion
